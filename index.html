@@ -282,6 +282,7 @@
   <p class="hint" id="n-desc" style="margin-top:8px"></p>
   <div class="traits" id="n-traits"></div>
   <button class="btn" id="n-send">🎁 Отправить другу</button>
+  <a class="btn secondary center" id="n-frag" target="_blank" rel="noopener" style="display:none"></a>
   <div class="links">
     <a class="btn secondary center" id="n-gg" target="_blank" rel="noopener">💎 Getgems</a>
     <a class="btn secondary center" id="n-tv" target="_blank" rel="noopener">🔍 Tonviewer</a>
@@ -773,12 +774,50 @@ function openTx(e) {
 // ============================================================ NFT и подарки
 let nfts = [], curNft = null;
 const NFT_GAS = toNano("0.05");
-function setPic(box, url, fallback = "🖼") {
+// показывает первую загрузившуюся картинку из списка (Fragment → превью tonapi → эмодзи)
+function setPic(box, urls, fallback = "🖼") {
+  const list = (Array.isArray(urls) ? urls : [urls]).filter(Boolean);
   box.style.backgroundImage = "";
-  if (!url) { box.replaceChildren(document.createTextNode(fallback)); return; }
-  const img = el("img"); img.alt = ""; img.loading = "lazy"; img.src = url;
-  img.onerror = () => box.replaceChildren(document.createTextNode(fallback));
+  if (!list.length) { box.replaceChildren(document.createTextNode(fallback)); return; }
+  const img = el("img"); img.alt = ""; img.loading = "lazy";
+  let i = 0;
+  img.onerror = () => { i++; if (i < list.length) img.src = list[i]; else box.replaceChildren(document.createTextNode(fallback)); };
+  img.src = list[0];
   box.replaceChildren(img);
+}
+
+// Fragment: подарки Telegram, юзернеймы и анонимные номера
+const FRAG = "https://nft.fragment.com";
+function fragmentInfo(n) {
+  const name = n.metadata?.name || "";
+  const col = n.collection?.name || "";
+  const image = n.metadata?.image || "";
+  // 1) картинка уже с Fragment — берём её базовый адрес
+  let m = image.match(/^https:\/\/nft\.fragment\.com\/gift\/([a-z0-9]+-\d+)\./i);
+  let slug = m ? m[1].toLowerCase() : null;
+  // 2) подарок по названию «Plush Pepe #1337» + свойства Model/Backdrop
+  const attrs = Array.isArray(n.metadata?.attributes) ? n.metadata.attributes.map(a => String(a.trait_type).toLowerCase()) : [];
+  m = name.match(/^(.+?)\s*#(\d+)$/);
+  if (!slug && m && (attrs.includes("model") || attrs.includes("backdrop") || /fragment\.com/i.test(image))) {
+    slug = m[1].toLowerCase().replace(/[^a-z0-9]/g, "") + "-" + m[2];
+  }
+  if (slug) {
+    const [giftName, num] = slug.split("-");
+    const tmeName = (m ? m[1].replace(/[^A-Za-z0-9]/g, "") : giftName) + "-" + num;
+    return { kind: "gift", big: `${FRAG}/gift/${slug}.large.jpg`, small: `${FRAG}/gift/${slug}.medium.jpg`,
+      link: `https://t.me/nft/${tmeName}`, linkText: "🎁 Открыть в Telegram" };
+  }
+  if (/telegram usernames/i.test(col) && name.startsWith("@")) {
+    const u = name.slice(1).toLowerCase();
+    return { kind: "username", big: `${FRAG}/username/${u}.webp`, small: `${FRAG}/username/${u}.webp`,
+      link: `https://fragment.com/username/${u}`, linkText: "💎 Fragment" };
+  }
+  if (/anonymous telegram numbers/i.test(col)) {
+    const d = name.replace(/\D/g, "");
+    if (d) return { kind: "number", big: `${FRAG}/number/${d}.webp`, small: `${FRAG}/number/${d}.webp`,
+      link: `https://fragment.com/number/${d}`, linkText: "💎 Fragment" };
+  }
+  return null;
 }
 function nftPreview(n, res = "500x500") {
   const p = (n.previews || []).find(x => x.resolution === res) || (n.previews || []).slice(-1)[0];
@@ -804,7 +843,9 @@ async function loadNfts() {
   for (const n of nfts) {
     const card = el("div", "nft");
     const pic = el("div", "pic");
-    setPic(pic, nftPreview(n));
+    const fr = fragmentInfo(n);
+    setPic(pic, [fr?.small, nftPreview(n)]);
+    if (fr?.kind === "gift") card.classList.add("gift");
     const info = el("div", "info");
     info.append(el("div", "nm", n.metadata?.name || `NFT #${n.index ?? ""}`));
     const col = el("div", "col", n.collection?.name || "Без коллекции");
@@ -819,7 +860,8 @@ async function loadNfts() {
 function openNft(n) {
   curNft = n;
   const url = nftPreview(n, "1500x1500") || nftPreview(n);
-  setPic($("n-pic"), url);
+  const fr = fragmentInfo(n);
+  setPic($("n-pic"), [fr?.big, url]);
   $("n-name").textContent = n.metadata?.name || "NFT";
   $("n-col").textContent = (n.collection?.name || "Без коллекции") + (n.trust === "whitelist" ? " ✔" : n.trust === "none" ? " · непроверенная коллекция" : "");
   $("n-desc").textContent = n.metadata?.description || "";
@@ -832,12 +874,18 @@ function openNft(n) {
   const friendlyNft = friendly(n.address);
   $("n-gg").href = `https://getgems.io/nft/${friendlyNft}`;
   $("n-tv").href = `https://tonviewer.com/${friendlyNft}`;
-  for (const id of ["n-gg", "n-tv"]) $(id).onclick = (ev) => { if (tg?.openLink) { ev.preventDefault(); tg.openLink($(id).href); } };
+  $("n-frag").style.display = fr ? "block" : "none";
+  if (fr) { $("n-frag").href = fr.link; $("n-frag").textContent = fr.linkText; }
+  for (const id of ["n-gg", "n-tv", "n-frag"]) $(id).onclick = (ev) => {
+    const href = $(id).href;
+    if (href.startsWith("https://t.me/") && tg?.openTelegramLink) { ev.preventDefault(); tg.openTelegramLink(href); }
+    else if (tg?.openLink) { ev.preventDefault(); tg.openLink(href); }
+  };
   show("s-nft");
 }
 $("n-send").onclick = () => {
   const n = curNft; if (!n) return;
-  setPic($("ns-pic"), nftPreview(n, "100x100") || nftPreview(n));
+  setPic($("ns-pic"), [fragmentInfo(n)?.small, nftPreview(n, "100x100") || nftPreview(n)]);
   $("ns-name").textContent = n.metadata?.name || "NFT";
   $("ns-col").textContent = n.collection?.name || "";
   $("ns-ton").textContent = amountStr(tonBalance, 9);
