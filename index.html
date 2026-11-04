@@ -181,7 +181,6 @@
   .status{border-radius:14px;padding:12px 14px;font-size:13px;line-height:1.5;margin-top:14px}
   .status.ok{background:#2fd27a14;border:1px solid #2fd27a40}
   .status.new{background:#ffb34714;border:1px solid #ffb34740}
-  .status.danger{background:#ff5c5c1f;border:2px solid var(--bad);font-size:14px}
   .status b{display:block;margin-bottom:2px}
   .sheet-list{max-height:50vh;overflow-y:auto;margin:6px 0}
   #w-sheet,#name-sheet{display:none;position:fixed;inset:0;background:#000a;align-items:flex-end;justify-content:center;z-index:8}
@@ -385,7 +384,6 @@
     <div class="row"><span>Комиссия сети</span><span id="c-fee"></span></div>
   </div>
   <div id="c-status"></div>
-  <label class="check" id="c-poison-wrap" style="display:none"><input type="checkbox" id="c-poison"> Я сверил адрес получателя полностью, символ за символом</label>
   <div class="warn">⚠️ Перевод в блокчейне нельзя отменить или вернуть.</div>
   <label>PIN-код для подписи</label>
   <input type="password" inputmode="numeric" maxlength="8" id="confirm-pin" placeholder="PIN-код">
@@ -427,7 +425,6 @@
       <select id="set-autolock"><option value="1">1 мин</option><option value="5">5 мин</option><option value="15">15 мин</option><option value="60">1 час</option><option value="0">Никогда</option></select></div>
     <div class="set-row"><div><div>🙈 Скрывать баланс</div><div class="hint">Суммы размыты, пока не нажмёшь 👁</div></div>
       <label class="switch"><input type="checkbox" id="set-hide"><span></span></label></div>
-    <div class="set-row"><div><div>🛡 Защита от подмены адреса</div><div class="hint">Всегда включена</div></div><span class="up">✓</span></div>
     <div class="set-row"><div><div>🔢 Попытки PIN</div><div class="hint">После 5 ошибок — блокировка с нарастающей паузой</div></div><span class="up">✓</span></div>
   </div>
   <button class="btn secondary" id="btn-change-pin">🔒 Сменить PIN-код</button>
@@ -917,10 +914,7 @@ function renderEvents() {
     const mid = el("div", "mid");
     mid.append(el("div", "t", evTitle(e)));
     const sub = e.dir === "other" ? e.desc : [e.dir === "swap" ? `−${amountStr(e.inAmount, e.inDec)} ${e.inSym}` : (e.dir === "in" ? "от " : "кому ") + peerName(e.peer), e.dir !== "swap" && e.comment ? "💬 " + e.comment : ""].filter(Boolean).join(" · ");
-    const look = e.peer?.address && e.dir !== "swap" ? lookalikeOf(e.peer.address) : null;
-    const subEl = el("div", "s", sub);
-    if (look) { subEl.textContent = `⚠️ похож на «${look}» — возможная подмена!`; subEl.style.color = "var(--bad)"; }
-    mid.append(subEl);
+    mid.append(el("div", "s", sub));
     const rt = el("div", "rt");
     const a = el("div", "a sens " + (e.dir === "in" || e.dir === "swap" ? "up" : ""), evAmount(e));
     rt.append(a);
@@ -1306,7 +1300,6 @@ function jettonTransferBody(amount, dest, responseTo, comment) {
 
 $("btn-confirm").onclick = async () => {
   if (!pendingSend) return;
-  if ($("c-poison-wrap").style.display !== "none" && !$("c-poison").checked) return toast("Отметь, что сверил(а) адрес полностью", true);
   if (!(await checkPin($("confirm-pin").value))) return;
   const { a, to, value, comment } = pendingSend;
   pendingSend = null; busy = true;
@@ -1500,35 +1493,16 @@ function trustedAddrs() {
   m.delete("");
   return m;
 }
-// защита от подмены адреса (address poisoning)
+// подсказка о получателе: контакт / свой кошелёк / знакомый / новый адрес
 function addrStatus(toAddr) {
-  const raw = toAddr.toRawString().toLowerCase(), f = friendly(toAddr);
+  const raw = toAddr.toRawString().toLowerCase();
   const trusted = trustedAddrs();
   if (trusted.has(raw)) {
     const k = trusted.get(raw);
     return { kind: "ok", title: k.type === "contact" ? `✅ Контакт: ${k.label}` : k.type === "own" ? `✅ Твой кошелёк: ${k.label}` : "✅ Знакомый адрес", text: k.type === "recent" ? "Ты уже отправлял(а) на этот адрес." : "" };
   }
-  for (const [kr, k] of trusted) {
-    let kf; try { kf = friendly(kr); } catch { continue; }
-    if (kf !== f && kf.slice(2, 6) === f.slice(2, 6) && kf.slice(-4) === f.slice(-4)) {
-      return { kind: "danger", title: "🚨 Осторожно: возможная подмена адреса!",
-        text: `Этот адрес очень похож на «${k.label}» (${short(kf)}), но это ДРУГОЙ адрес. Мошенники присылают копейки с похожего адреса, чтобы ты скопировал(а) его из истории. Сверь адрес полностью.` };
-    }
-  }
   const seenIn = events.some(e => e.dir === "in" && e.peer?.address?.toLowerCase() === raw);
-  return { kind: "new", title: "⚠️ Новый адрес", text: seenIn ? "Ты ещё не отправлял(а) сюда — этот адрес только присылал тебе монеты. Проверь его внимательно." : "Ты ещё не отправлял(а) на этот адрес. Проверь его внимательно." };
-}
-// адрес похож на доверенный, но не совпадает — вернёт имя доверенного
-function lookalikeOf(addr) {
-  const raw = rawOf(addr); if (!raw) return null;
-  const trusted = trustedAddrs();
-  if (trusted.has(raw)) return null;
-  let f; try { f = friendly(raw); } catch { return null; }
-  for (const [kr, k] of trusted) {
-    let kf; try { kf = friendly(kr); } catch { continue; }
-    if (kf !== f && kf.slice(2, 6) === f.slice(2, 6) && kf.slice(-4) === f.slice(-4)) return k.label;
-  }
-  return null;
+  return { kind: "new", title: "⚠️ Новый адрес", text: seenIn ? "Ты ещё не отправлял(а) сюда — этот адрес только присылал тебе монеты." : "Ты ещё не отправлял(а) на этот адрес. Проверь его внимательно." };
 }
 function renderAddrStatus(toAddr) {
   const st = addrStatus(toAddr);
@@ -1536,9 +1510,6 @@ function renderAddrStatus(toAddr) {
   box.append(el("b", null, st.title));
   if (st.text) box.append(document.createTextNode(st.text));
   $("c-status").replaceChildren(box);
-  $("c-poison").checked = false;
-  $("c-poison-wrap").style.display = st.kind === "danger" ? "flex" : "none";
-  if (st.kind === "danger") try { tg?.HapticFeedback?.notificationOccurred("warning"); } catch {}
 }
 function labelFor(raw) { return contactName(raw) || ownWalletName(raw) || short(friendly(raw)); }
 function renderRecentChips() {
