@@ -178,10 +178,6 @@
   .switch input:checked+span{background:var(--accent)}
   .switch input:checked+span:before{transform:translateX(20px)}
   select{font:inherit;font-size:14px;background:var(--card2);color:var(--text);border:0;border-radius:10px;padding:8px 10px}
-  .status{border-radius:14px;padding:12px 14px;font-size:13px;line-height:1.5;margin-top:14px}
-  .status.ok{background:#2fd27a14;border:1px solid #2fd27a40}
-  .status.new{background:#ffb34714;border:1px solid #ffb34740}
-  .status b{display:block;margin-bottom:2px}
   .sheet-list{max-height:50vh;overflow-y:auto;margin:6px 0}
   #w-sheet,#name-sheet{display:none;position:fixed;inset:0;background:#000a;align-items:flex-end;justify-content:center;z-index:8}
   #w-sheet .sheet,#name-sheet .sheet{background:var(--card);border-radius:24px 24px 0 0;padding:22px 16px 30px;width:100%;max-width:480px;animation:up .2s}
@@ -383,7 +379,6 @@
     <div class="row"><span>Комментарий</span><span id="c-comment"></span></div>
     <div class="row"><span>Комиссия сети</span><span id="c-fee"></span></div>
   </div>
-  <div id="c-status"></div>
   <div class="warn">⚠️ Перевод в блокчейне нельзя отменить или вернуть.</div>
   <label>PIN-код для подписи</label>
   <input type="password" inputmode="numeric" maxlength="8" id="confirm-pin" placeholder="PIN-код">
@@ -1280,7 +1275,6 @@ $("btn-send-next").onclick = () => {
   $("c-to").textContent = friendly(to.address);
   $("c-comment").textContent = pendingSend.comment || "—";
   $("c-fee").textContent = a.kind === "ton" ? "≈ 0.005 TON" : "≈ 0.05 TON (часть вернётся)";
-  renderAddrStatus(to.address);
   $("confirm-pin").value = "";
   show("s-confirm");
 };
@@ -1483,33 +1477,6 @@ function recentList(limit = 8) {
     const r = e.peer.address.toLowerCase(); if (r !== myRaw && !m.has(r)) m.set(r, e.time * 1000);
   }
   return [...m].sort((a, b) => b[1] - a[1]).slice(0, limit).map(([raw, t]) => ({ raw, t }));
-}
-// доверенные адреса: контакты, свои кошельки, те, куда ты уже отправлял
-function trustedAddrs() {
-  const m = new Map();
-  for (const c of loadContacts()) m.set(rawOf(c.address), { label: c.name, type: "contact" });
-  for (const w of loadStore()?.wallets || []) if (w.addr && rawOf(w.addr) !== myRaw) m.set(rawOf(w.addr), { label: `${w.emoji} ${w.name}`, type: "own" });
-  for (const x of recentList(50)) if (!m.has(x.raw)) m.set(x.raw, { label: short(friendly(x.raw)), type: "recent" });
-  m.delete("");
-  return m;
-}
-// подсказка о получателе: контакт / свой кошелёк / знакомый / новый адрес
-function addrStatus(toAddr) {
-  const raw = toAddr.toRawString().toLowerCase();
-  const trusted = trustedAddrs();
-  if (trusted.has(raw)) {
-    const k = trusted.get(raw);
-    return { kind: "ok", title: k.type === "contact" ? `✅ Контакт: ${k.label}` : k.type === "own" ? `✅ Твой кошелёк: ${k.label}` : "✅ Знакомый адрес", text: k.type === "recent" ? "Ты уже отправлял(а) на этот адрес." : "" };
-  }
-  const seenIn = events.some(e => e.dir === "in" && e.peer?.address?.toLowerCase() === raw);
-  return { kind: "new", title: "⚠️ Новый адрес", text: seenIn ? "Ты ещё не отправлял(а) сюда — этот адрес только присылал тебе монеты." : "Ты ещё не отправлял(а) на этот адрес. Проверь его внимательно." };
-}
-function renderAddrStatus(toAddr) {
-  const st = addrStatus(toAddr);
-  const box = el("div", "status " + st.kind);
-  box.append(el("b", null, st.title));
-  if (st.text) box.append(document.createTextNode(st.text));
-  $("c-status").replaceChildren(box);
 }
 function labelFor(raw) { return contactName(raw) || ownWalletName(raw) || short(friendly(raw)); }
 function renderRecentChips() {
