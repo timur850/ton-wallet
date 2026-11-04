@@ -151,6 +151,41 @@
   .trait .v{font-size:14px;font-weight:600;margin-top:2px;word-break:break-word}
   .links{display:grid;grid-template-columns:1fr 1fr;gap:8px}
   .links .btn{margin-top:12px;font-size:14px;padding:13px}
+  .addr-chip b{color:var(--text);font-weight:600;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  .lbl-row{display:flex;justify-content:space-between;align-items:center;position:relative;z-index:1}
+  .eye{width:32px;height:32px;border-radius:50%;background:#ffffff1f;color:#fff;font-size:14px;margin-left:6px}
+  body.hide .sens{filter:blur(9px);user-select:none}
+  .chips{display:flex;gap:8px;overflow-x:auto;padding:10px 0 2px;scrollbar-width:none}
+  .chips::-webkit-scrollbar{display:none}
+  .chip{flex-shrink:0;background:var(--card);border-radius:20px;padding:8px 12px;font-size:13px;display:flex;gap:6px;align-items:center;white-space:nowrap}
+  .chip .av{width:20px;height:20px;border-radius:50%;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
+  .person{display:flex;align-items:center;gap:12px;padding:12px 4px;border-bottom:1px solid var(--line);cursor:pointer}
+  .person:last-child{border-bottom:0}
+  .person .av{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#2a6df5,#0098EA);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:17px;flex-shrink:0}
+  .person .mid{flex:1;min-width:0}
+  .person .nm{font-weight:600;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .person .ad{font-size:12px;color:var(--hint);font-family:ui-monospace,Menlo,monospace;margin-top:2px}
+  .person .x{color:var(--hint);font-size:18px;padding:6px 8px}
+  .person .on{color:var(--ok);font-size:18px}
+  .sect{font-size:13px;font-weight:600;color:var(--hint);margin:24px 4px 0;text-transform:uppercase;letter-spacing:.4px}
+  .set-row{display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:1px solid var(--line);font-size:15px;gap:10px}
+  .set-row:last-child{border-bottom:0}
+  .set-row .hint{font-size:12px;margin-top:2px}
+  .switch{position:relative;width:50px;height:30px;flex-shrink:0}
+  .switch input{opacity:0;width:0;height:0;position:absolute}
+  .switch span{position:absolute;inset:0;background:var(--card2);border-radius:30px;transition:.2s}
+  .switch span:before{content:"";position:absolute;width:24px;height:24px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s}
+  .switch input:checked+span{background:var(--accent)}
+  .switch input:checked+span:before{transform:translateX(20px)}
+  select{font:inherit;font-size:14px;background:var(--card2);color:var(--text);border:0;border-radius:10px;padding:8px 10px}
+  .status{border-radius:14px;padding:12px 14px;font-size:13px;line-height:1.5;margin-top:14px}
+  .status.ok{background:#2fd27a14;border:1px solid #2fd27a40}
+  .status.new{background:#ffb34714;border:1px solid #ffb34740}
+  .status.danger{background:#ff5c5c1f;border:2px solid var(--bad);font-size:14px}
+  .status b{display:block;margin-bottom:2px}
+  .sheet-list{max-height:50vh;overflow-y:auto;margin:6px 0}
+  #w-sheet,#name-sheet{display:none;position:fixed;inset:0;background:#000a;align-items:flex-end;justify-content:center;z-index:8}
+  #w-sheet .sheet,#name-sheet .sheet{background:var(--card);border-radius:24px 24px 0 0;padding:22px 16px 30px;width:100%;max-width:480px;animation:up .2s}
   #cf-modal{display:none;position:fixed;inset:0;background:#000a;align-items:flex-end;justify-content:center;z-index:8}
   #cf-modal .sheet{background:var(--card);border-radius:24px 24px 0 0;padding:22px 16px 30px;width:100%;max-width:480px;animation:up .2s}
   @keyframes up{from{transform:translateY(100%)}}
@@ -217,23 +252,26 @@
   <div class="hero" style="margin-top:60px"><div class="hero-ico" style="width:80px;height:80px;border-radius:26px;font-size:34px">🔐</div></div>
   <h2 class="center">Введи PIN-код</h2>
   <input type="password" inputmode="numeric" maxlength="8" id="unlock-pin" placeholder="PIN-код" style="text-align:center;letter-spacing:6px;font-size:22px">
+  <p class="hint center" id="unlock-wait" style="margin-top:10px;color:var(--warn)"></p>
   <button class="btn" id="btn-unlock">Войти</button>
+  <button class="btn secondary" id="btn-bio" style="display:none">👆 Войти по биометрии</button>
   <button class="btn secondary" id="btn-forgot">Забыл PIN</button>
 </div>
 
 <!-- Главный экран -->
 <div class="screen" id="s-main">
   <div class="topbar">
-    <button class="addr-chip" id="short-addr">—</button>
-    <div>
+    <button class="addr-chip" id="w-switch"><span id="w-emoji">👛</span><b id="w-name">Кошелёк</b><span id="short-addr">—</span> ▾</button>
+    <div style="white-space:nowrap">
+      <button class="icon-btn" id="btn-contacts" title="Контакты">📒</button>
       <button class="icon-btn" id="btn-settings" title="Настройки">⚙️</button>
       <button class="icon-btn" id="btn-lock" title="Заблокировать">🔒</button>
     </div>
   </div>
   <div class="total">
-    <div class="lbl">Общий баланс</div>
-    <div class="sum" id="total-usd">$—</div>
-    <div class="sub" id="total-ton">— TON</div>
+    <div class="lbl-row"><span class="lbl">Общий баланс</span><span><button class="eye" id="btn-eye" title="Скрыть баланс">👁</button><button class="eye" id="btn-copy-addr" title="Скопировать адрес">⧉</button></span></div>
+    <div class="sum sens" id="total-usd">$—</div>
+    <div class="sub sens" id="total-ton">— TON</div>
     <div class="actions">
       <button class="action" id="btn-receive"><i>↓</i>Получить</button>
       <button class="action" id="btn-send"><i>↑</i>Отправить</button>
@@ -254,8 +292,8 @@
 <!-- Детали токена -->
 <div class="screen" id="s-asset">
   <div class="tok" id="a-ico" style="width:72px;height:72px;margin:12px auto 10px;font-size:26px"></div>
-  <div class="big-amt" id="a-amt"></div>
-  <p class="hint center" id="a-usd" style="margin-top:4px"></p>
+  <div class="big-amt sens" id="a-amt"></div>
+  <p class="hint center sens" id="a-usd" style="margin-top:4px"></p>
   <div class="card">
     <div class="row"><span>Название</span><span id="a-name"></span></div>
     <div class="row"><span>Цена</span><span id="a-price"></span></div>
@@ -325,8 +363,9 @@
   <h2>Отправить</h2>
   <label>Токен</label>
   <button class="tok-pick" id="send-token"></button>
-  <label>Адрес получателя</label>
+  <label>Адрес получателя <button class="max" id="btn-pick-contact">📒 Контакты</button></label>
   <input id="send-to" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="UQ… или EQ…">
+  <div class="chips" id="recent-chips"></div>
   <label>Сумма <button class="max" id="btn-max">МАКС</button></label>
   <div class="amt-wrap"><input id="send-amount" inputmode="decimal" placeholder="0"><span class="sym" id="send-sym">TON</span></div>
   <p class="hint" style="margin-top:8px" id="send-info"></p>
@@ -345,7 +384,9 @@
     <div class="row"><span>Комментарий</span><span id="c-comment"></span></div>
     <div class="row"><span>Комиссия сети</span><span id="c-fee"></span></div>
   </div>
-  <div class="warn">⚠️ Проверь адрес получателя. Перевод в блокчейне нельзя отменить или вернуть.</div>
+  <div id="c-status"></div>
+  <label class="check" id="c-poison-wrap" style="display:none"><input type="checkbox" id="c-poison"> Я сверил адрес получателя полностью, символ за символом</label>
+  <div class="warn">⚠️ Перевод в блокчейне нельзя отменить или вернуть.</div>
   <label>PIN-код для подписи</label>
   <input type="password" inputmode="numeric" maxlength="8" id="confirm-pin" placeholder="PIN-код">
   <button class="btn" id="btn-confirm">✅ Подтвердить и отправить</button>
@@ -356,24 +397,99 @@
   <div class="big-ic" id="sending-ic" style="display:none"></div>
   <h2 class="center" id="sending-title">Отправляем…</h2>
   <p class="hint center" id="sending-text"></p>
+  <button class="btn" id="btn-save-contact" style="display:none">⭐ Сохранить в контакты</button>
   <button class="btn secondary" id="btn-sending-done" style="display:none">На главную</button>
 </div>
 
 <!-- Настройки -->
 <div class="screen" id="s-settings">
   <h2>⚙️ Настройки</h2>
+
+  <div class="sect">Этот кошелёк</div>
   <div class="card">
-    <div class="row"><span>Сеть</span><span>TON Mainnet</span></div>
+    <label style="margin-top:0">Название</label>
+    <div style="display:flex;gap:8px">
+      <input id="set-emoji" maxlength="2" style="width:62px;text-align:center;font-size:20px">
+      <input id="set-name" maxlength="24" placeholder="Например: Основной">
+    </div>
+    <button class="btn secondary" id="btn-rename">💾 Сохранить название</button>
+    <div class="row" style="margin-top:8px"><span>Сеть</span><span>TON Mainnet</span></div>
     <div class="row"><span>Версия кошелька</span><span id="ver-label">v4R2</span></div>
+    <p class="hint" style="margin-top:6px">Импортировал из Tonkeeper и баланс 0? Попробуй другую версию — у одной фразы бывают разные адреса.</p>
+    <button class="btn secondary" id="btn-ver">🔄 Переключить на W5</button>
   </div>
-  <p class="hint" style="margin-top:10px">Импортировал из Tonkeeper и баланс 0? Попробуй другую версию — у одной фразы бывают разные адреса.</p>
-  <button class="btn secondary" id="btn-ver">🔄 Переключить на W5</button>
-  <label>PIN-код</label>
-  <input type="password" inputmode="numeric" maxlength="8" id="settings-pin" placeholder="Нужен, чтобы показать фразу">
+
+  <div class="sect">Безопасность</div>
+  <div class="card" style="padding:4px 16px">
+    <div class="set-row" id="bio-row"><div><div>👆 Вход по биометрии</div><div class="hint" id="bio-hint">Face ID или отпечаток вместо PIN</div></div>
+      <label class="switch"><input type="checkbox" id="set-bio"><span></span></label></div>
+    <div class="set-row"><div><div>⏱ Автоблокировка</div><div class="hint">Если не пользуешься кошельком</div></div>
+      <select id="set-autolock"><option value="1">1 мин</option><option value="5">5 мин</option><option value="15">15 мин</option><option value="60">1 час</option><option value="0">Никогда</option></select></div>
+    <div class="set-row"><div><div>🙈 Скрывать баланс</div><div class="hint">Суммы размыты, пока не нажмёшь 👁</div></div>
+      <label class="switch"><input type="checkbox" id="set-hide"><span></span></label></div>
+    <div class="set-row"><div><div>🛡 Защита от подмены адреса</div><div class="hint">Всегда включена</div></div><span class="up">✓</span></div>
+    <div class="set-row"><div><div>🔢 Попытки PIN</div><div class="hint">После 5 ошибок — блокировка с нарастающей паузой</div></div><span class="up">✓</span></div>
+  </div>
+  <button class="btn secondary" id="btn-change-pin">🔒 Сменить PIN-код</button>
+
+  <div class="sect">Секретная фраза</div>
+  <input type="password" inputmode="numeric" maxlength="8" id="settings-pin" placeholder="PIN-код, чтобы показать фразу">
   <button class="btn secondary" id="btn-show-seed">🔑 Показать секретную фразу</button>
   <div class="words" id="settings-words"></div>
-  <button class="btn danger" id="btn-delete" style="margin-top:30px">🗑 Удалить кошелёк с устройства</button>
+
+  <div class="sect">Опасная зона</div>
+  <button class="btn danger" id="btn-delete">🗑 Удалить этот кошелёк</button>
+  <button class="btn danger" id="btn-wipe">💣 Удалить все кошельки с устройства</button>
 </div>
+
+<!-- Добавить кошелёк -->
+<div class="screen" id="s-add-wallet">
+  <h2>Новый кошелёк</h2>
+  <p class="hint">Он будет защищён тем же PIN-кодом. Переключаться между кошельками можно, нажав на название сверху.</p>
+  <button class="btn" id="btn-add-create" style="margin-top:22px">✨ Создать новый</button>
+  <button class="btn secondary" id="btn-add-import">📥 Импортировать по 24 словам</button>
+</div>
+
+<!-- Контакты -->
+<div class="screen" id="s-contacts">
+  <h2 id="ct-title">📒 Контакты</h2>
+  <div class="card">
+    <label style="margin-top:0">Имя</label>
+    <input id="ct-name" maxlength="32" placeholder="Например: Мама">
+    <label>Адрес</label>
+    <input id="ct-addr" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="UQ… или EQ…">
+    <button class="btn" id="btn-ct-add">＋ Добавить контакт</button>
+  </div>
+  <div class="sect" id="ct-recent-title">Недавние</div>
+  <div class="card" style="padding:4px 12px" id="ct-recent"></div>
+  <div class="sect">Сохранённые</div>
+  <div class="card" style="padding:4px 12px" id="ct-list"></div>
+</div>
+
+<!-- Смена PIN -->
+<div class="screen" id="s-change-pin">
+  <h2>🔒 Смена PIN-кода</h2>
+  <input type="password" inputmode="numeric" maxlength="8" id="cp-old" placeholder="Текущий PIN-код">
+  <input type="password" inputmode="numeric" maxlength="8" id="cp-new1" placeholder="Новый PIN-код (4–8 цифр)">
+  <input type="password" inputmode="numeric" maxlength="8" id="cp-new2" placeholder="Повтори новый PIN-код">
+  <button class="btn" id="btn-cp">Сменить</button>
+</div>
+
+<!-- Шторка выбора кошелька -->
+<div id="w-sheet"><div class="sheet">
+  <h2>Кошельки</h2>
+  <div class="sheet-list" id="w-list"></div>
+  <button class="btn" id="btn-w-add">＋ Добавить кошелёк</button>
+  <button class="btn secondary" id="btn-w-close">Закрыть</button>
+</div></div>
+
+<!-- Шторка ввода имени -->
+<div id="name-sheet"><div class="sheet">
+  <h2 id="ns2-title">Сохранить контакт</h2>
+  <input id="ns2-input" maxlength="32" placeholder="Имя контакта">
+  <button class="btn" id="ns2-ok">Сохранить</button>
+  <button class="btn secondary" id="ns2-cancel">Отмена</button>
+</div></div>
 
 <div id="cf-modal"><div class="sheet">
   <h2 id="cf-title">Удалить кошелёк?</h2>
@@ -403,6 +519,8 @@ const TONCENTER_API_KEY = "";          // ключ из @tonapibot — сним�
 const TONAPI = "https://tonapi.io/v2"; // токены, цены и история
 const TONAPI_KEY = "";                 // ключ с tonconsole.com (необязательно)
 const STORAGE_KEY = "tonwallet_vault";
+const SETTINGS_KEY = "tonwallet_settings", CONTACTS_KEY = "tonwallet_contacts", RECENT_KEY = "tonwallet_recent", ATTEMPTS_KEY = "tonwallet_attempts";
+const EMOJIS = ["👛", "💎", "🚀", "🦊", "🐳", "🔥", "⭐", "🍀", "🎯", "🐸"];
 const PBKDF2_ITER = 250000;
 const TON_FEE_RESERVE = toNano("0.02");
 const JETTON_GAS = toNano("0.05");     // TON на комиссию при отправке токена (остаток вернётся)
@@ -418,6 +536,11 @@ let assets = [];          // [{kind:'ton'|'jetton', symbol, name, decimals, bala
 let events = [];
 let sendAsset = null, pendingSend = null;
 let nav = ["s-main"];
+let sessionPin = null;   // PIN в памяти, пока кошелёк разблокирован (нужен для переключения кошельков)
+let addMode = false;     // добавляем ещё один кошелёк, а не создаём первый
+let busy = false;        // идёт отправка — не блокировать
+let pickMode = false;    // экран контактов открыт для выбора получателя
+let lastSentTo = null;
 
 // ============================================================ UI-хелперы
 const $ = (id) => document.getElementById(id);
@@ -528,8 +651,48 @@ async function decryptWords(vault, pin) {
   const pt = await crypto.subtle.decrypt({ name: "AES-GCM", iv: unb64(vault.iv) }, await deriveKey(pin, unb64(vault.salt)), unb64(vault.ct));
   return dec.decode(pt).split(" ");
 }
-function loadVault() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "null"); } catch { return null; } }
-function saveVault(v) { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(v)); return true; } catch { return false; } }
+function lsGet(k, d) { try { const v = JSON.parse(localStorage.getItem(k) || "null"); return v ?? d; } catch { return d; } }
+function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch { return false; } }
+// хранилище: { v:2, active:id, wallets:[{id,name,emoji,ver,addr,salt,iv,ct}] } — все фразы зашифрованы одним PIN
+function loadStore() {
+  let st = lsGet(STORAGE_KEY, null);
+  if (st && !st.wallets && st.ct) {   // миграция со старого формата (один кошелёк)
+    st = { v: 2, active: "w1", wallets: [{ id: "w1", name: "Кошелёк 1", emoji: "👛", ver: st.ver || "v4", salt: st.salt, iv: st.iv, ct: st.ct }] };
+    lsSet(STORAGE_KEY, st);
+  }
+  return st && st.wallets?.length ? st : null;
+}
+const saveStore = (st) => lsSet(STORAGE_KEY, st);
+function activeRec(st = loadStore()) { return st ? (st.wallets.find(w => w.id === st.active) || st.wallets[0]) : null; }
+const loadVault = () => activeRec();
+
+// настройки
+const settings = () => ({ autolock: 5, bio: false, hide: false, ...lsGet(SETTINGS_KEY, {}) });
+const saveSettings = (p) => lsSet(SETTINGS_KEY, { ...settings(), ...p });
+
+// ---------- PIN с ограничением попыток
+function lockoutLeft() { const a = lsGet(ATTEMPTS_KEY, { n: 0, until: 0 }); return Math.max(0, (a.until || 0) - Date.now()); }
+const fmtWait = (ms) => { const s = Math.ceil(ms / 1000); return s >= 60 ? `${Math.ceil(s / 60)} мин` : `${s} сек`; };
+function updateUnlockWait() {
+  const left = lockoutLeft();
+  $("unlock-wait").textContent = left > 0 ? `🔒 Слишком много ошибок. Вход заблокирован ещё на ${fmtWait(left)}` : "";
+}
+async function checkPin(pin) {
+  const left = lockoutLeft();
+  if (left > 0) { toast(`Слишком много попыток. Подожди ${fmtWait(left)}`, true); return null; }
+  try {
+    const list = await decryptWords(loadVault(), pin);
+    lsSet(ATTEMPTS_KEY, { n: 0, until: 0 });
+    return list;
+  } catch {
+    const a = lsGet(ATTEMPTS_KEY, { n: 0, until: 0 }); a.n = (a.n || 0) + 1;
+    if (a.n >= 5) a.until = Date.now() + Math.min(30000 * 2 ** (a.n - 5), 3600000); // 30с, 1м, 2м … до 1 часа
+    lsSet(ATTEMPTS_KEY, a);
+    toast(a.n >= 5 ? `Неверный PIN. Пауза ${fmtWait(a.until - Date.now())}` : `Неверный PIN-код. Осталось попыток: ${5 - a.n}`, true);
+    updateUnlockWait();
+    return null;
+  }
+}
 
 // ============================================================ API
 async function tonapi(path) {
@@ -541,8 +704,8 @@ async function tonapi(path) {
 // ============================================================ кошелёк
 async function openWallet(list) {
   keyPair = await mnemonicToPrivateKey(list);
-  const v = loadVault();
-  walletVer = (v && v.ver) || "v4";
+  const st = loadStore(), rec = activeRec(st);
+  walletVer = (rec && rec.ver) || "v4";
   wallet = walletVer === "w5"
     ? WalletContractV5R1.create({ workchain: 0, publicKey: keyPair.publicKey })
     : WalletContractV4.create({ workchain: 0, publicKey: keyPair.publicKey });
@@ -551,7 +714,14 @@ async function openWallet(list) {
   $("ver-label").textContent = walletVer === "w5" ? "W5" : "v4R2";
   $("btn-ver").textContent = walletVer === "w5" ? "🔄 Переключить на v4R2" : "🔄 Переключить на W5";
   const a = friendly(wallet.address);
-  $("short-addr").textContent = "👛 " + short(a) + " ⧉";
+  $("short-addr").textContent = short(a);
+  if (rec && rec.addr !== a) { rec.addr = a; saveStore(st); }
+  $("w-name").textContent = rec?.name || "Кошелёк";
+  $("w-emoji").textContent = rec?.emoji || "👛";
+  document.body.classList.toggle("hide", !!settings().hide);
+  $("total-usd").textContent = "$—"; $("total-ton").textContent = "— TON";
+  for (const id of ["tab-assets", "tab-nft", "tab-history"]) $(id).innerHTML = '<div class="skel"></div><div class="skel"></div>';
+  touch();
   $("full-addr").textContent = a;
   $("qr-img").src = await QRCode.toDataURL(`ton://transfer/${a}`, { margin: 1, width: 500 });
   assets = []; events = [];
@@ -560,22 +730,28 @@ async function openWallet(list) {
   refresh();
 }
 function lock() {
-  words = null; keyPair = null; wallet = null; pendingSend = null;
-  $("unlock-pin").value = "";
+  words = null; keyPair = null; wallet = null; pendingSend = null; sessionPin = null; busy = false;
+  closeSheets();
+  $("unlock-pin").value = ""; $("settings-words").replaceChildren();
   nav = ["s-unlock"]; show("s-unlock", false);
+  updateUnlockWait(); updateBioUi();
 }
+function closeSheets() { for (const id of ["w-sheet", "name-sheet", "cf-modal"]) $(id).style.display = "none"; }
 
-let refreshing = false;
+let refreshGen = 0;
 async function refresh() {
-  if (!wallet || refreshing) return;
-  refreshing = true;
+  if (!wallet) return;
+  const g = ++refreshGen, w = wallet;
+  const stale = () => g !== refreshGen || w !== wallet;
   $("btn-refresh").disabled = true;
   try {
-    tonBalance = await retry(() => client.getBalance(wallet.address));
+    const bal = await retry(() => client.getBalance(w.address));
+    if (stale()) return;
+    tonBalance = bal;
   } catch (e) {
     console.error(e);
-    toast("Не удалось загрузить баланс. Попробуй ещё раз.", true);
-    refreshing = false; $("btn-refresh").disabled = false; return;
+    if (!stale()) toast("Не удалось загрузить баланс. Попробуй ещё раз.", true);
+    $("btn-refresh").disabled = false; return;
   }
   // цены и токены (если tonapi недоступен — покажем хотя бы TON)
   let tonPrice = 0, tonDiff = "";
@@ -601,13 +777,15 @@ async function refresh() {
       });
     }
   } catch (e) { console.warn(e); }
+  if (stale()) return;
   const ton = { kind: "ton", symbol: "TON", name: "Toncoin", decimals: 9, balance: tonBalance, price: tonPrice, diff: tonDiff, verified: true };
   list.sort((a, b) => valueUsd(b) - valueUsd(a));
   assets = [ton, ...list];
   renderAssets();
-  await loadEvents();
-  await loadNfts();
-  refreshing = false; $("btn-refresh").disabled = false;
+  await loadEvents(stale);
+  if (stale()) return;
+  await loadNfts(stale);
+  $("btn-refresh").disabled = false;
 }
 const valueUsd = (a) => Number(formatUnits(a.balance, a.decimals)) * (a.price || 0);
 
@@ -634,7 +812,7 @@ function assetRow(a, onClick) {
   if (a.diff) { const d = el("span", a.diff.startsWith("-") || a.diff.startsWith("−") ? "down" : "up", a.diff); pr.append(d); }
   mid.append(nm, pr);
   const rt = el("div", "rt");
-  rt.append(el("div", "amt", amountStr(a.balance, a.decimals)), el("div", "usd", a.price ? usd(valueUsd(a)) : ""));
+  rt.append(el("div", "amt sens", amountStr(a.balance, a.decimals)), el("div", "usd sens", a.price ? usd(valueUsd(a)) : ""));
   row.append(tokIcon(a), mid, rt);
   row.onclick = onClick;
   return row;
@@ -653,10 +831,11 @@ function openAsset(a) {
 }
 
 // ============================================================ история
-async function loadEvents() {
+async function loadEvents(stale = () => false) {
   const box = $("tab-history");
   try {
     const r = await tonapi(`/accounts/${encodeURIComponent(myRaw)}/events?limit=30`);
+    if (stale()) return;
     events = (r.events || []).map(parseEvent).filter(Boolean);
   } catch (e) {
     console.warn(e);
@@ -704,7 +883,7 @@ function dayLabel(ts) {
   if (diff === 1) return "Вчера";
   return d.toLocaleDateString("ru-RU", { day: "numeric", month: "long", year: d.getFullYear() === now.getFullYear() ? undefined : "numeric" });
 }
-const peerName = (p) => p ? (p.name || short(friendly(p.address))) : "";
+const peerName = (p) => p ? (contactName(p.address) || p.name || short(friendly(p.address))) : "";
 function evTitle(e) {
   if (e.dir === "swap") return `Обмен ${e.inSym} → ${e.symbol}`;
   if (e.dir === "other") return e.title;
@@ -738,9 +917,12 @@ function renderEvents() {
     const mid = el("div", "mid");
     mid.append(el("div", "t", evTitle(e)));
     const sub = e.dir === "other" ? e.desc : [e.dir === "swap" ? `−${amountStr(e.inAmount, e.inDec)} ${e.inSym}` : (e.dir === "in" ? "от " : "кому ") + peerName(e.peer), e.dir !== "swap" && e.comment ? "💬 " + e.comment : ""].filter(Boolean).join(" · ");
-    mid.append(el("div", "s", sub));
+    const look = e.peer?.address && e.dir !== "swap" ? lookalikeOf(e.peer.address) : null;
+    const subEl = el("div", "s", sub);
+    if (look) { subEl.textContent = `⚠️ похож на «${look}» — возможная подмена!`; subEl.style.color = "var(--bad)"; }
+    mid.append(subEl);
     const rt = el("div", "rt");
-    const a = el("div", "a " + (e.dir === "in" || e.dir === "swap" ? "up" : ""), evAmount(e));
+    const a = el("div", "a sens " + (e.dir === "in" || e.dir === "swap" ? "up" : ""), evAmount(e));
     rt.append(a);
     const tm = el("div", "tm", new Date(e.time * 1000).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" }));
     if (e.pending) tm.replaceChildren(el("span", "pending", "⏳ в процессе"));
@@ -823,10 +1005,11 @@ function nftPreview(n, res = "500x500") {
   const p = (n.previews || []).find(x => x.resolution === res) || (n.previews || []).slice(-1)[0];
   return p?.url || n.metadata?.image || "";
 }
-async function loadNfts() {
+async function loadNfts(stale = () => false) {
   const box = $("tab-nft");
   try {
     const r = await tonapi(`/accounts/${encodeURIComponent(myRaw)}/nfts?limit=200&indirect_ownership=false`);
+    if (stale()) return;
     nfts = (r.nft_items || []).filter(n => n.trust !== "blacklist")
       .sort((a, b) => (b.trust === "whitelist") - (a.trust === "whitelist"));
   } catch (e) {
@@ -909,7 +1092,8 @@ $("ns-go").onclick = async () => {
   try { to = Address.parseFriendly($("ns-to").value.trim()); } catch { return toast("Неверный адрес", true); }
   if (to.address.equals(wallet.address)) return toast("Это твой собственный адрес", true);
   if (tonBalance < NFT_GAS + toNano("0.005")) return toast("Нужно хотя бы 0.06 TON на комиссию", true);
-  try { await decryptWords(loadVault(), $("ns-pin").value); } catch { return toast("Неверный PIN-код", true); }
+  if (!(await checkPin($("ns-pin").value))) return;
+  busy = true; $("btn-save-contact").style.display = "none";
   const name = n.metadata?.name || "NFT";
   const comment = $("ns-comment").value.trim();
   $("sending-spin").style.display = "block"; $("sending-ic").style.display = "none";
@@ -934,6 +1118,7 @@ $("ns-go").onclick = async () => {
     $("sending-spin").style.display = "none";
     const ic = $("sending-ic"); ic.style.display = "flex"; ic.className = "big-ic " + (confirmed ? "in" : "other"); ic.style.color = ""; ic.textContent = confirmed ? "🎁" : "⏳";
     $("sending-title").textContent = confirmed ? "Подарок отправлен!" : "Отправлено, ждём сеть";
+    afterSent(to.address);
     $("sending-text").textContent = confirmed ? `${name} → ${short(friendly(to.address))}` : "Сеть ещё не подтвердила транзакцию. Проверь историю через минуту.";
     if (confirmed) toast("Готово 🎁");
   } catch (e) {
@@ -943,6 +1128,7 @@ $("ns-go").onclick = async () => {
     $("sending-title").textContent = "Ошибка";
     $("sending-text").textContent = "Не удалось отправить NFT. Он остался у тебя — попробуй ещё раз.";
   }
+  busy = false; touch();
   $("btn-sending-done").style.display = "block";
 };
 
@@ -971,6 +1157,7 @@ $("btn-seed-next").onclick = () => {
 $("btn-check").onclick = () => {
   const ok = [...$("check-fields").querySelectorAll("input")].every(inp => inp.value.trim().toLowerCase() === newWords[+inp.dataset.i]);
   if (!ok) return toast("Слова не совпадают. Проверь записи.", true);
+  if (addMode) return finishAdd(newWords);
   show("s-pin");
 };
 $("btn-import").onclick = () => { $("import-words").value = ""; show("s-import"); };
@@ -978,7 +1165,9 @@ $("btn-import-go").onclick = async () => {
   const list = $("import-words").value.trim().toLowerCase().split(/[\s,]+/).filter(Boolean);
   if (list.length !== 24) return toast(`Нужно 24 слова, а введено ${list.length}`, true);
   if (!(await mnemonicValidate(list))) return toast("Неверная секретная фраза", true);
-  newWords = list; show("s-pin");
+  newWords = list;
+  if (addMode) return finishAdd(list);
+  show("s-pin");
 };
 $("btn-pin").onclick = async () => {
   const p1 = $("pin1").value, p2 = $("pin2").value;
@@ -986,7 +1175,10 @@ $("btn-pin").onclick = async () => {
   if (p1 !== p2) return toast("PIN-коды не совпадают", true);
   $("btn-pin").disabled = true;
   try {
-    if (!saveVault(await encryptWords(newWords, p1))) return toast("Не удалось сохранить на устройстве", true);
+    const id = "w" + Date.now();
+    const st = { v: 2, active: id, wallets: [{ id, name: "Кошелёк 1", emoji: "👛", ver: "v4", ...(await encryptWords(newWords, p1)) }] };
+    if (!saveStore(st)) return toast("Не удалось сохранить на устройстве", true);
+    sessionPin = p1; lsSet(ATTEMPTS_KEY, { n: 0, until: 0 });
     const list = newWords; newWords = null; $("pin1").value = ""; $("pin2").value = "";
     await openWallet(list);
     toast("Кошелёк готов 🎉");
@@ -994,20 +1186,26 @@ $("btn-pin").onclick = async () => {
 };
 
 // ============================================================ вход
+async function unlockWith(pin) {
+  const list = await checkPin(pin);
+  if (!list) return false;
+  sessionPin = pin;
+  await openWallet(list);
+  return true;
+}
 $("btn-unlock").onclick = async () => {
-  const vault = loadVault();
-  if (!vault) return show("s-welcome");
+  if (!loadStore()) return show("s-welcome");
   $("btn-unlock").disabled = true;
-  try { await openWallet(await decryptWords(vault, $("unlock-pin").value)); }
-  catch { toast("Неверный PIN-код", true); }
+  try { await unlockWith($("unlock-pin").value); }
   finally { $("btn-unlock").disabled = false; $("unlock-pin").value = ""; }
 };
 $("unlock-pin").onkeydown = (e) => { if (e.key === "Enter") $("btn-unlock").click(); };
 $("btn-forgot").onclick = () => wipe("Забыл PIN?", "Удали кошелёк с устройства и импортируй его заново по 24 словам. Без фразы доступ восстановить невозможно.");
 async function wipe(title, text) {
   if (!(await askConfirm(title, text))) return;
-  try { localStorage.removeItem(STORAGE_KEY); } catch {}
-  words = null; keyPair = null; wallet = null;
+  for (const k of [STORAGE_KEY, ATTEMPTS_KEY, SETTINGS_KEY, CONTACTS_KEY, RECENT_KEY]) { try { localStorage.removeItem(k); } catch {} }
+  try { if (bm?.isBiometricTokenSaved) bm.updateBiometricToken("", () => {}); } catch {}
+  words = null; keyPair = null; wallet = null; sessionPin = null;
   $("settings-words").replaceChildren();
   nav = ["s-welcome"]; show("s-welcome", false);
 }
@@ -1022,12 +1220,24 @@ $("btn-refresh").onclick = refresh;
 $("btn-lock").onclick = lock;
 $("btn-receive").onclick = () => show("s-receive");
 $("btn-copy").onclick = () => copy($("full-addr").textContent);
-$("short-addr").onclick = () => copy($("full-addr").textContent);
+$("btn-copy-addr").onclick = () => copy($("full-addr").textContent);
+$("btn-eye").onclick = () => document.body.classList.toggle("hide");
+$("w-switch").onclick = openWalletSheet;
+$("btn-w-close").onclick = closeSheets;
+$("btn-w-add").onclick = () => { closeSheets(); show("s-add-wallet"); };
+$("btn-contacts").onclick = () => openContacts(false);
 $("btn-explorer").onclick = () => {
   const url = "https://tonviewer.com/" + $("full-addr").textContent;
   if (tg?.openLink) tg.openLink(url); else window.open(url, "_blank");
 };
-$("btn-settings").onclick = () => { $("settings-pin").value = ""; $("settings-words").replaceChildren(); show("s-settings"); };
+$("btn-settings").onclick = () => {
+  const rec = activeRec(), st = settings();
+  $("settings-pin").value = ""; $("settings-words").replaceChildren();
+  $("set-name").value = rec?.name || ""; $("set-emoji").value = rec?.emoji || "👛";
+  $("set-autolock").value = String(st.autolock); $("set-hide").checked = !!st.hide;
+  updateBioUi();
+  show("s-settings");
+};
 
 // ============================================================ отправка
 $("btn-send").onclick = () => {
@@ -1047,6 +1257,7 @@ function openSend(a) {
     ? "Комиссия сети ≈ 0.005 TON"
     : `Комиссия ≈ 0.05 TON (часть вернётся). На балансе TON: ${amountStr(tonBalance, 9)}`;
   $("send-to").value = ""; $("send-amount").value = ""; $("send-comment").value = "";
+  renderRecentChips();
   show("s-send");
 }
 $("btn-max").onclick = () => {
@@ -1075,6 +1286,7 @@ $("btn-send-next").onclick = () => {
   $("c-to").textContent = friendly(to.address);
   $("c-comment").textContent = pendingSend.comment || "—";
   $("c-fee").textContent = a.kind === "ton" ? "≈ 0.005 TON" : "≈ 0.05 TON (часть вернётся)";
+  renderAddrStatus(to.address);
   $("confirm-pin").value = "";
   show("s-confirm");
 };
@@ -1094,10 +1306,11 @@ function jettonTransferBody(amount, dest, responseTo, comment) {
 
 $("btn-confirm").onclick = async () => {
   if (!pendingSend) return;
-  try { await decryptWords(loadVault(), $("confirm-pin").value); }
-  catch { return toast("Неверный PIN-код", true); }
+  if ($("c-poison-wrap").style.display !== "none" && !$("c-poison").checked) return toast("Отметь, что сверил(а) адрес полностью", true);
+  if (!(await checkPin($("confirm-pin").value))) return;
   const { a, to, value, comment } = pendingSend;
-  pendingSend = null;
+  pendingSend = null; busy = true;
+  $("btn-save-contact").style.display = "none";
   $("sending-spin").style.display = "block"; $("sending-ic").style.display = "none";
   $("sending-title").textContent = "Отправляем…";
   $("sending-text").textContent = "Транзакция подписана и отправлена в сеть. Обычно это занимает 5–15 секунд.";
@@ -1124,6 +1337,7 @@ $("btn-confirm").onclick = async () => {
     $("sending-spin").style.display = "none";
     const ic = $("sending-ic"); ic.style.display = "flex"; ic.className = "big-ic " + (confirmed ? "in" : "other"); ic.style.color = ""; ic.textContent = confirmed ? "✓" : "⏳";
     $("sending-title").textContent = confirmed ? "Отправлено!" : "Отправлено, ждём сеть";
+    afterSent(to.address);
     $("sending-text").textContent = confirmed
       ? `${amountStr(value, a.decimals)} ${a.symbol} → ${short(friendly(to.address))}`
       : "Сеть ещё не подтвердила транзакцию. Проверь историю через минуту.";
@@ -1135,23 +1349,331 @@ $("btn-confirm").onclick = async () => {
     $("sending-title").textContent = "Ошибка";
     $("sending-text").textContent = "Не удалось отправить транзакцию. Средства не списаны — попробуй ещё раз.";
   }
+  busy = false; touch();
   $("btn-sending-done").style.display = "block";
 };
 $("btn-sending-done").onclick = () => { nav = ["s-main"]; show("s-main", false); refresh(); };
 
 // ============================================================ настройки
 $("btn-show-seed").onclick = async () => {
-  try { renderWords($("settings-words"), await decryptWords(loadVault(), $("settings-pin").value)); }
-  catch { toast("Неверный PIN-код", true); }
+  const list = await checkPin($("settings-pin").value);
+  if (list) renderWords($("settings-words"), list);
 };
-$("btn-delete").onclick = () => wipe("Удалить кошелёк?", "Кошелёк будет удалён с этого устройства. Без 24 слов восстановить его будет невозможно.");
+$("btn-delete").onclick = async () => {
+  const st = loadStore(); if (!st) return;
+  const rec = activeRec(st);
+  if (st.wallets.length === 1) return wipe("Удалить кошелёк?", "Кошелёк будет удалён с этого устройства. Без 24 слов восстановить его будет невозможно.");
+  if (!(await askConfirm(`Удалить «${rec.name}»?`, "Этот кошелёк будет удалён с устройства. Без его 24 слов восстановить его будет невозможно. Остальные кошельки останутся."))) return;
+  st.wallets = st.wallets.filter(w => w.id !== rec.id);
+  st.active = st.wallets[0].id; saveStore(st);
+  await switchWallet(st.active);
+  toast("Кошелёк удалён");
+};
+$("btn-wipe").onclick = () => wipe("Удалить все кошельки?", "Все кошельки, контакты и настройки будут удалены с этого устройства. Без 24 слов восстановить кошельки невозможно.");
 $("btn-ver").onclick = async () => {
-  const v = loadVault(); if (!v || !words) return;
-  v.ver = walletVer === "w5" ? "v4" : "w5";
-  saveVault(v);
+  const st = loadStore(), rec = activeRec(st); if (!rec || !words) return;
+  rec.ver = walletVer === "w5" ? "v4" : "w5";
+  saveStore(st);
   await openWallet(words);
-  toast("Версия: " + (v.ver === "w5" ? "W5" : "v4R2"));
+  toast("Версия: " + (rec.ver === "w5" ? "W5" : "v4R2"));
 };
+$("btn-rename").onclick = () => {
+  const st = loadStore(), rec = activeRec(st); if (!rec) return;
+  const name = $("set-name").value.trim(); if (!name) return toast("Введи название", true);
+  rec.name = name; rec.emoji = [...$("set-emoji").value.trim()][0] || "👛";
+  saveStore(st);
+  $("w-name").textContent = rec.name; $("w-emoji").textContent = rec.emoji;
+  toast("Сохранено ✅");
+};
+$("set-autolock").onchange = (e) => { saveSettings({ autolock: Number(e.target.value) }); toast("Автоблокировка: " + e.target.selectedOptions[0].textContent); };
+$("set-hide").onchange = (e) => { saveSettings({ hide: e.target.checked }); document.body.classList.toggle("hide", e.target.checked); };
+$("btn-change-pin").onclick = () => { for (const id of ["cp-old", "cp-new1", "cp-new2"]) $(id).value = ""; show("s-change-pin"); };
+$("btn-cp").onclick = async () => {
+  const old = $("cp-old").value, n1 = $("cp-new1").value, n2 = $("cp-new2").value;
+  if (!/^\d{4,8}$/.test(n1)) return toast("Новый PIN — от 4 до 8 цифр", true);
+  if (n1 !== n2) return toast("Новые PIN-коды не совпадают", true);
+  if (n1 === old) return toast("Новый PIN совпадает со старым", true);
+  if (!(await checkPin(old))) return;
+  const st = loadStore();
+  try {
+    for (const w of st.wallets) Object.assign(w, await encryptWords(await decryptWords(w, old), n1));
+  } catch { return toast("Не удалось сменить PIN", true); }
+  if (!saveStore(st)) return toast("Не удалось сохранить", true);
+  sessionPin = n1;
+  try { if (settings().bio && bm?.isBiometricTokenSaved) bm.updateBiometricToken(n1, () => {}); } catch {}
+  for (const id of ["cp-old", "cp-new1", "cp-new2"]) $(id).value = "";
+  toast("PIN-код изменён ✅");
+  back();
+};
+
+// ============================================================ несколько кошельков
+const createFlow = $("btn-create").onclick, importFlow = $("btn-import").onclick;
+$("btn-create").onclick = () => { addMode = false; createFlow(); };
+$("btn-import").onclick = () => { addMode = false; importFlow(); };
+$("btn-add-create").onclick = () => { addMode = true; createFlow(); };
+$("btn-add-import").onclick = () => { addMode = true; importFlow(); };
+
+async function finishAdd(list) {
+  const st = loadStore();
+  if (!st || !sessionPin) return lock();
+  const kp = await mnemonicToPrivateKey(list);
+  const cands = [WalletContractV4, WalletContractV5R1].map(C => friendly(C.create({ workchain: 0, publicKey: kp.publicKey }).address));
+  const dup = st.wallets.find(w => w.addr && cands.includes(w.addr));
+  newWords = null; addMode = false;
+  if (dup) { toast("Этот кошелёк уже добавлен"); return switchWallet(dup.id); }
+  const id = "w" + Date.now();
+  st.wallets.push({ id, name: `Кошелёк ${st.wallets.length + 1}`, emoji: EMOJIS[st.wallets.length % EMOJIS.length], ver: "v4", ...(await encryptWords(list, sessionPin)) });
+  st.active = id;
+  if (!saveStore(st)) return toast("Не удалось сохранить", true);
+  await openWallet(list);
+  toast("Кошелёк добавлен 🎉");
+}
+async function switchWallet(id) {
+  const st = loadStore(), rec = st?.wallets.find(w => w.id === id);
+  if (!rec || !sessionPin) return;
+  try {
+    const list = await decryptWords(rec, sessionPin);
+    st.active = id; saveStore(st);
+    closeSheets();
+    await openWallet(list);
+    try { tg?.HapticFeedback?.impactOccurred("light"); } catch {}
+  } catch { toast("Не удалось открыть кошелёк", true); }
+}
+function openWalletSheet() {
+  const st = loadStore(); if (!st) return;
+  $("w-list").replaceChildren(...st.wallets.map(w => {
+    const row = el("div", "person");
+    const av = el("div", "av", w.emoji || "👛"); av.style.background = "var(--card2)";
+    const mid = el("div", "mid"); mid.append(el("div", "nm", w.name), el("div", "ad", w.addr ? short(w.addr) : "…"));
+    row.append(av, mid);
+    if (w.id === st.active) row.append(el("span", "on", "✓"));
+    row.onclick = () => w.id === st.active ? closeSheets() : switchWallet(w.id);
+    return row;
+  }));
+  $("w-sheet").style.display = "flex";
+}
+
+// ============================================================ контакты и недавние
+const rawOf = (a) => { try { return Address.parse(typeof a === "string" ? a.trim() : a.toString()).toRawString().toLowerCase(); } catch { return ""; } };
+const loadContacts = () => lsGet(CONTACTS_KEY, []);
+const saveContacts = (l) => lsSet(CONTACTS_KEY, l);
+function contactName(addr) {
+  const r = rawOf(addr); if (!r) return "";
+  return loadContacts().find(c => rawOf(c.address) === r)?.name || "";
+}
+function ownWalletName(addr) {
+  const r = rawOf(addr); if (!r) return "";
+  const w = (loadStore()?.wallets || []).find(w => w.addr && rawOf(w.addr) === r);
+  return w ? `${w.emoji} ${w.name}` : "";
+}
+function addContact(name, addr) {
+  let a; try { a = Address.parseFriendly(addr.trim()).address; } catch { toast("Неверный адрес", true); return false; }
+  name = name.trim(); if (!name) { toast("Введи имя", true); return false; }
+  const list = loadContacts(), r = a.toRawString().toLowerCase();
+  const ex = list.find(c => rawOf(c.address) === r);
+  if (ex) ex.name = name; else list.unshift({ name, address: friendly(a) });
+  saveContacts(list);
+  if (events.length) renderEvents();
+  return true;
+}
+function addRecent(addr) {
+  const r = rawOf(addr); if (!r) return;
+  const list = lsGet(RECENT_KEY, []).filter(x => x.raw !== r);
+  list.unshift({ raw: r, t: Date.now() });
+  lsSet(RECENT_KEY, list.slice(0, 15));
+}
+// недавние получатели: сохранённые после отправки + исходящие из истории
+function recentList(limit = 8) {
+  const m = new Map();
+  for (const x of lsGet(RECENT_KEY, [])) if (!m.has(x.raw)) m.set(x.raw, x.t);
+  for (const e of events) if (e.dir === "out" && e.peer?.address && !e.failed && !e.nft) {
+    const r = e.peer.address.toLowerCase(); if (r !== myRaw && !m.has(r)) m.set(r, e.time * 1000);
+  }
+  return [...m].sort((a, b) => b[1] - a[1]).slice(0, limit).map(([raw, t]) => ({ raw, t }));
+}
+// доверенные адреса: контакты, свои кошельки, те, куда ты уже отправлял
+function trustedAddrs() {
+  const m = new Map();
+  for (const c of loadContacts()) m.set(rawOf(c.address), { label: c.name, type: "contact" });
+  for (const w of loadStore()?.wallets || []) if (w.addr && rawOf(w.addr) !== myRaw) m.set(rawOf(w.addr), { label: `${w.emoji} ${w.name}`, type: "own" });
+  for (const x of recentList(50)) if (!m.has(x.raw)) m.set(x.raw, { label: short(friendly(x.raw)), type: "recent" });
+  m.delete("");
+  return m;
+}
+// защита от подмены адреса (address poisoning)
+function addrStatus(toAddr) {
+  const raw = toAddr.toRawString().toLowerCase(), f = friendly(toAddr);
+  const trusted = trustedAddrs();
+  if (trusted.has(raw)) {
+    const k = trusted.get(raw);
+    return { kind: "ok", title: k.type === "contact" ? `✅ Контакт: ${k.label}` : k.type === "own" ? `✅ Твой кошелёк: ${k.label}` : "✅ Знакомый адрес", text: k.type === "recent" ? "Ты уже отправлял(а) на этот адрес." : "" };
+  }
+  for (const [kr, k] of trusted) {
+    let kf; try { kf = friendly(kr); } catch { continue; }
+    if (kf !== f && kf.slice(2, 6) === f.slice(2, 6) && kf.slice(-4) === f.slice(-4)) {
+      return { kind: "danger", title: "🚨 Осторожно: возможная подмена адреса!",
+        text: `Этот адрес очень похож на «${k.label}» (${short(kf)}), но это ДРУГОЙ адрес. Мошенники присылают копейки с похожего адреса, чтобы ты скопировал(а) его из истории. Сверь адрес полностью.` };
+    }
+  }
+  const seenIn = events.some(e => e.dir === "in" && e.peer?.address?.toLowerCase() === raw);
+  return { kind: "new", title: "⚠️ Новый адрес", text: seenIn ? "Ты ещё не отправлял(а) сюда — этот адрес только присылал тебе монеты. Проверь его внимательно." : "Ты ещё не отправлял(а) на этот адрес. Проверь его внимательно." };
+}
+// адрес похож на доверенный, но не совпадает — вернёт имя доверенного
+function lookalikeOf(addr) {
+  const raw = rawOf(addr); if (!raw) return null;
+  const trusted = trustedAddrs();
+  if (trusted.has(raw)) return null;
+  let f; try { f = friendly(raw); } catch { return null; }
+  for (const [kr, k] of trusted) {
+    let kf; try { kf = friendly(kr); } catch { continue; }
+    if (kf !== f && kf.slice(2, 6) === f.slice(2, 6) && kf.slice(-4) === f.slice(-4)) return k.label;
+  }
+  return null;
+}
+function renderAddrStatus(toAddr) {
+  const st = addrStatus(toAddr);
+  const box = el("div", "status " + st.kind);
+  box.append(el("b", null, st.title));
+  if (st.text) box.append(document.createTextNode(st.text));
+  $("c-status").replaceChildren(box);
+  $("c-poison").checked = false;
+  $("c-poison-wrap").style.display = st.kind === "danger" ? "flex" : "none";
+  if (st.kind === "danger") try { tg?.HapticFeedback?.notificationOccurred("warning"); } catch {}
+}
+function labelFor(raw) { return contactName(raw) || ownWalletName(raw) || short(friendly(raw)); }
+function renderRecentChips() {
+  const box = $("recent-chips");
+  const items = recentList(6);
+  box.replaceChildren(...items.map(x => {
+    const name = labelFor(x.raw);
+    const c = el("button", "chip");
+    c.append(el("span", "av", [...name][0]?.toUpperCase() || "•"), document.createTextNode(name));
+    c.onclick = () => { $("send-to").value = friendly(x.raw); };
+    return c;
+  }));
+  box.style.display = items.length ? "flex" : "none";
+}
+function personRow(name, addr, onClick, onDelete) {
+  const row = el("div", "person");
+  const av = el("div", "av", [...name][0]?.toUpperCase() || "?");
+  const mid = el("div", "mid"); mid.append(el("div", "nm", name), el("div", "ad", short(addr)));
+  row.append(av, mid);
+  if (onDelete) { const x = el("button", "x", "🗑"); x.onclick = (e) => { e.stopPropagation(); onDelete(); }; row.append(x); }
+  row.onclick = onClick;
+  return row;
+}
+function useAddress(addr) {
+  if (pickMode) { $("send-to").value = addr; back(); return; }
+  const ton = assets.find(a => a.kind === "ton");
+  if (!ton) return toast("Подожди, баланс загружается…");
+  openSend(ton); $("send-to").value = addr;
+}
+function renderContacts() {
+  const list = loadContacts();
+  $("ct-list").replaceChildren(...(list.length ? list.map(c => personRow(c.name, c.address, () => useAddress(c.address), async () => {
+    if (!(await askConfirm("Удалить контакт?", `«${c.name}» будет удалён из адресной книги.`))) return;
+    saveContacts(loadContacts().filter(x => rawOf(x.address) !== rawOf(c.address))); renderContacts();
+    if (events.length) renderEvents();
+  })) : [el("div", "empty", "Пока нет контактов")]));
+  const rec = recentList(6);
+  $("ct-recent-title").style.display = $("ct-recent").style.display = rec.length ? "block" : "none";
+  $("ct-recent").replaceChildren(...rec.map(x => {
+    const f = friendly(x.raw), saved = contactName(x.raw);
+    const row = personRow(labelFor(x.raw), f, () => useAddress(f));
+    if (!saved) {
+      const add = el("button", "x", "⭐"); add.title = "Сохранить";
+      add.onclick = async (e) => { e.stopPropagation(); const n = await askName("Сохранить контакт"); if (n && addContact(n, f)) { toast("Контакт сохранён ⭐"); renderContacts(); } };
+      row.append(add);
+    }
+    return row;
+  }));
+}
+function openContacts(pick) {
+  pickMode = pick;
+  $("ct-title").textContent = pick ? "Выбери получателя" : "📒 Контакты";
+  $("ct-name").value = ""; $("ct-addr").value = "";
+  renderContacts();
+  show("s-contacts");
+}
+$("btn-pick-contact").onclick = () => openContacts(true);
+$("btn-ct-add").onclick = () => {
+  if (addContact($("ct-name").value, $("ct-addr").value)) { $("ct-name").value = ""; $("ct-addr").value = ""; toast("Контакт добавлен ⭐"); renderContacts(); }
+};
+function askName(title) {
+  return new Promise(res => {
+    $("ns2-title").textContent = title; $("ns2-input").value = "";
+    $("name-sheet").style.display = "flex"; setTimeout(() => $("ns2-input").focus(), 50);
+    $("ns2-ok").onclick = () => { const v = $("ns2-input").value.trim(); if (!v) return toast("Введи имя", true); $("name-sheet").style.display = "none"; res(v); };
+    $("ns2-cancel").onclick = () => { $("name-sheet").style.display = "none"; res(null); };
+  });
+}
+function afterSent(toAddr) {
+  lastSentTo = friendly(toAddr);
+  addRecent(lastSentTo);
+  $("btn-save-contact").style.display = contactName(lastSentTo) || ownWalletName(lastSentTo) ? "none" : "block";
+}
+$("btn-save-contact").onclick = async () => {
+  const n = await askName("Сохранить контакт");
+  if (n && lastSentTo && addContact(n, lastSentTo)) { toast("Контакт сохранён ⭐"); $("btn-save-contact").style.display = "none"; }
+};
+
+// ============================================================ биометрия (Telegram BiometricManager)
+const bm = inTg ? tg.BiometricManager : null;
+let bioReady = false, bioTried = false;
+const bioAvailable = () => !!(bm && bioReady && bm.isBiometricAvailable);
+function updateBioUi() {
+  const on = bioAvailable();
+  $("bio-row").style.display = on ? "flex" : "none";
+  $("set-bio").checked = on && settings().bio && bm.isBiometricTokenSaved;
+  const label = bm?.biometricType === "face" ? "Face ID" : bm?.biometricType === "finger" ? "отпечатку" : "биометрии";
+  $("btn-bio").textContent = (bm?.biometricType === "face" ? "🙂" : "👆") + " Войти по " + label;
+  $("btn-bio").style.display = on && settings().bio && bm.isBiometricTokenSaved && loadStore() ? "block" : "none";
+}
+function bioUnlock() {
+  if (!bioAvailable() || lockoutLeft() > 0) return updateUnlockWait();
+  bm.authenticate({ reason: "Вход в TON кошелёк" }, async (ok, token) => {
+    if (ok && token) await unlockWith(token);
+  });
+}
+$("btn-bio").onclick = bioUnlock;
+$("set-bio").onchange = async (e) => {
+  if (!bioAvailable()) { e.target.checked = false; return; }
+  if (e.target.checked) {
+    if (!sessionPin) { e.target.checked = false; return; }
+    const ok = await new Promise(res => {
+      const save = () => bm.updateBiometricToken(sessionPin, (u) => res(!!u));
+      bm.isAccessGranted ? save() : bm.requestAccess({ reason: "Вход в кошелёк без PIN-кода" }, (g) => g ? save() : res(false));
+    });
+    if (!ok) { e.target.checked = false; updateBioUi(); return toast("Не удалось включить. Разреши биометрию в настройках Telegram.", true); }
+    saveSettings({ bio: true }); toast("Вход по биометрии включён ✅");
+  } else {
+    try { bm.updateBiometricToken("", () => {}); } catch {}
+    saveSettings({ bio: false });
+  }
+  updateBioUi();
+};
+if (bm) {
+  try {
+    bm.init(() => {
+      bioReady = true; updateBioUi();
+      // при запуске сразу предложить вход по биометрии
+      if (!bioTried && $("s-unlock").classList.contains("active") && settings().bio && bm.isBiometricTokenSaved) { bioTried = true; bioUnlock(); }
+    });
+  } catch (e) { console.warn(e); }
+}
+
+// ============================================================ автоблокировка
+let lastAct = Date.now(), hiddenAt = 0;
+function touch() { lastAct = Date.now(); }
+["pointerdown", "keydown", "touchstart"].forEach(ev => document.addEventListener(ev, touch, { passive: true }));
+function autolockDue(since) { const m = settings().autolock; return wallet && !busy && m > 0 && Date.now() - since > m * 60000; }
+setInterval(() => { if (autolockDue(lastAct)) { lock(); toast("🔒 Кошелёк заблокирован"); } }, 10000);
+setInterval(updateUnlockWait, 1000);
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) { hiddenAt = Date.now(); return; }
+  if (hiddenAt && autolockDue(hiddenAt)) lock();
+  hiddenAt = 0; touch();
+});
 
 // ============================================================ старт
 if (tg) {
@@ -1161,8 +1683,9 @@ if (tg) {
 }
 $("back-web").onclick = back;
 window.__walletReady = true;
-nav = [loadVault() ? "s-unlock" : "s-welcome"];
+nav = [loadStore() ? "s-unlock" : "s-welcome"];
 show(nav[0], false);
+updateUnlockWait();
 </script>
 </body>
 </html>
