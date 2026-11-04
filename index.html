@@ -134,6 +134,23 @@
   .skel{height:64px;border-radius:14px;background:linear-gradient(90deg,var(--card) 0%,var(--card2) 50%,var(--card) 100%);background-size:200% 100%;animation:sk 1.2s infinite;margin-top:8px}
   @keyframes sk{to{background-position:-200% 0}}
   .back-web{display:none;color:var(--accent2);font-size:16px;font-weight:600;padding:12px 16px 0;max-width:480px;margin:0 auto;width:100%;text-align:left}
+  .nft-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:8px 0}
+  .nft{background:var(--card2);border-radius:18px;overflow:hidden;cursor:pointer;transition:transform .1s}
+  .nft:active{transform:scale(.97)}
+  .nft .pic{aspect-ratio:1;background:#0f131b center/cover no-repeat;display:flex;align-items:center;justify-content:center;font-size:40px}
+  .nft .info{padding:9px 11px 11px}
+  .nft .nm{font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .nft .col{font-size:12px;color:var(--hint);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:flex;gap:4px;align-items:center}
+  .vf{color:var(--accent2);font-size:11px}
+  .pic img,.nft-hero img,#ns-pic img{width:100%;height:100%;object-fit:cover;display:block}
+  .nft-hero{overflow:hidden}
+  .nft-hero{width:100%;aspect-ratio:1;border-radius:24px;background:#0f131b center/cover no-repeat;margin-top:4px;display:flex;align-items:center;justify-content:center;font-size:70px;box-shadow:0 14px 40px #0006}
+  .traits{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+  .trait{background:var(--card);border-radius:14px;padding:10px 12px}
+  .trait .k{font-size:12px;color:var(--hint)}
+  .trait .v{font-size:14px;font-weight:600;margin-top:2px;word-break:break-word}
+  .links{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .links .btn{margin-top:12px;font-size:14px;padding:13px}
   #cf-modal{display:none;position:fixed;inset:0;background:#000a;align-items:flex-end;justify-content:center;z-index:8}
   #cf-modal .sheet{background:var(--card);border-radius:24px 24px 0 0;padding:22px 16px 30px;width:100%;max-width:480px;animation:up .2s}
   @keyframes up{from{transform:translateY(100%)}}
@@ -158,6 +175,7 @@
   <div class="card" style="margin-top:26px">
     <div class="feat"><span>🔐</span><div>Ключи только на твоём устройстве — никто, кроме тебя, не имеет доступа</div></div>
     <div class="feat"><span>💵</span><div>TON, USDT, NOT, DOGS и любые токены сети TON</div></div>
+    <div class="feat"><span>🎁</span><div>NFT и подарки Telegram — смотри и дари друзьям</div></div>
     <div class="feat"><span>⚡</span><div>Переводы за секунды с минимальной комиссией</div></div>
   </div>
   <button class="btn" id="btn-create" style="margin-top:24px">✨ Создать кошелёк</button>
@@ -225,9 +243,11 @@
   </div>
   <div class="tabs">
     <button class="tab on" data-tab="assets">💰 Активы</button>
+    <button class="tab" data-tab="nft">🎁 NFT</button>
     <button class="tab" data-tab="history">🕒 История</button>
   </div>
   <div class="card" id="tab-assets" style="padding:6px 12px"><div class="skel"></div><div class="skel"></div></div>
+  <div class="card" id="tab-nft" style="display:none;padding:6px 10px"><div class="skel"></div></div>
   <div class="card" id="tab-history" style="display:none;padding:4px 10px 10px"><div class="skel"></div><div class="skel"></div></div>
 </div>
 
@@ -252,6 +272,35 @@
   <p class="hint center" id="tx-title" style="margin-top:4px"></p>
   <div class="card" id="tx-rows"></div>
   <a class="btn secondary center" id="tx-link" target="_blank" rel="noopener">🔍 Открыть в Tonviewer</a>
+</div>
+
+<!-- NFT детали -->
+<div class="screen" id="s-nft">
+  <div class="nft-hero" id="n-pic"></div>
+  <h2 style="margin:16px 0 2px" id="n-name"></h2>
+  <p class="hint" id="n-col"></p>
+  <p class="hint" id="n-desc" style="margin-top:8px"></p>
+  <div class="traits" id="n-traits"></div>
+  <button class="btn" id="n-send">🎁 Отправить другу</button>
+  <div class="links">
+    <a class="btn secondary center" id="n-gg" target="_blank" rel="noopener">💎 Getgems</a>
+    <a class="btn secondary center" id="n-tv" target="_blank" rel="noopener">🔍 Tonviewer</a>
+  </div>
+</div>
+
+<!-- NFT отправка -->
+<div class="screen" id="s-nft-send">
+  <h2>Отправить NFT</h2>
+  <div class="tok-pick" style="cursor:default"><div class="tok" id="ns-pic" style="border-radius:12px;background-size:cover;background-position:center"></div><div class="mid"><div class="nm" id="ns-name"></div><div class="pr" id="ns-col"></div></div></div>
+  <label>Адрес получателя</label>
+  <input id="ns-to" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="UQ… или EQ…">
+  <label>Комментарий (необязательно)</label>
+  <input id="ns-comment" maxlength="120" placeholder="С днём рождения! 🎉">
+  <p class="hint" style="margin-top:10px">Комиссия ≈ 0.05 TON (часть вернётся). На балансе: <span id="ns-ton"></span> TON</p>
+  <div class="warn">⚠️ Проверь адрес. Отправленный NFT нельзя вернуть без согласия получателя.</div>
+  <label>PIN-код для подписи</label>
+  <input type="password" inputmode="numeric" maxlength="8" id="ns-pin" placeholder="PIN-код">
+  <button class="btn" id="ns-go">🎁 Отправить</button>
 </div>
 
 <!-- Получить -->
@@ -556,6 +605,7 @@ async function refresh() {
   assets = [ton, ...list];
   renderAssets();
   await loadEvents();
+  await loadNfts();
   refreshing = false; $("btn-refresh").disabled = false;
 }
 const valueUsd = (a) => Number(formatUnits(a.balance, a.decimals)) * (a.price || 0);
@@ -641,7 +691,7 @@ function parseEvent(ev) {
   }
   if (act.type === "NftItemTransfer") {
     const incoming = isMe(d.recipient?.address);
-    return { ...base, dir: incoming ? "in" : "out", nft: true, symbol: "NFT", peer: incoming ? d.sender : d.recipient, comment: d.comment || "" };
+    return { ...base, dir: incoming ? "in" : "out", nft: true, symbol: "NFT", nftName: ev.actions.find(a => a.type === "NftItemTransfer")?.simple_preview?.value || "", peer: incoming ? d.sender : d.recipient, comment: d.comment || "" };
   }
   return { ...base, dir: "other", title: ev.actions?.[0]?.simple_preview?.name || act.type, desc: ev.actions?.[0]?.simple_preview?.description || "" };
 }
@@ -657,7 +707,7 @@ const peerName = (p) => p ? (p.name || short(friendly(p.address))) : "";
 function evTitle(e) {
   if (e.dir === "swap") return `Обмен ${e.inSym} → ${e.symbol}`;
   if (e.dir === "other") return e.title;
-  if (e.nft) return e.dir === "in" ? "Получен NFT" : "Отправлен NFT";
+  if (e.nft) return (e.dir === "in" ? "Получен " : "Отправлен ") + (e.nftName || "NFT");
   return e.dir === "in" ? "Получено" : "Отправлено";
 }
 function evAmount(e) {
@@ -719,6 +769,134 @@ function openTx(e) {
   if (tg?.openLink) $("tx-link").onclick = (ev) => { ev.preventDefault(); tg.openLink($("tx-link").href); };
   show("s-tx");
 }
+
+// ============================================================ NFT и подарки
+let nfts = [], curNft = null;
+const NFT_GAS = toNano("0.05");
+function setPic(box, url, fallback = "🖼") {
+  box.style.backgroundImage = "";
+  if (!url) { box.replaceChildren(document.createTextNode(fallback)); return; }
+  const img = el("img"); img.alt = ""; img.loading = "lazy"; img.src = url;
+  img.onerror = () => box.replaceChildren(document.createTextNode(fallback));
+  box.replaceChildren(img);
+}
+function nftPreview(n, res = "500x500") {
+  const p = (n.previews || []).find(x => x.resolution === res) || (n.previews || []).slice(-1)[0];
+  return p?.url || n.metadata?.image || "";
+}
+async function loadNfts() {
+  const box = $("tab-nft");
+  try {
+    const r = await tonapi(`/accounts/${encodeURIComponent(myRaw)}/nfts?limit=200&indirect_ownership=false`);
+    nfts = (r.nft_items || []).filter(n => n.trust !== "blacklist")
+      .sort((a, b) => (b.trust === "whitelist") - (a.trust === "whitelist"));
+  } catch (e) {
+    console.warn(e);
+    box.replaceChildren(el("div", "empty", "Не удалось загрузить NFT. Нажми «Обновить»."));
+    return;
+  }
+  if (!nfts.length) {
+    const e = el("div", "empty"); e.innerHTML = "<b>🎁</b>";
+    e.append(document.createTextNode("Здесь появятся твои NFT и улучшенные подарки Telegram. Чтобы подарок попал сюда, выведи его в профиле Telegram на этот адрес."));
+    box.replaceChildren(e); return;
+  }
+  const grid = el("div", "nft-grid");
+  for (const n of nfts) {
+    const card = el("div", "nft");
+    const pic = el("div", "pic");
+    setPic(pic, nftPreview(n));
+    const info = el("div", "info");
+    info.append(el("div", "nm", n.metadata?.name || `NFT #${n.index ?? ""}`));
+    const col = el("div", "col", n.collection?.name || "Без коллекции");
+    if (n.trust === "whitelist") col.append(el("span", "vf", "✔"));
+    info.append(col);
+    card.append(pic, info);
+    card.onclick = () => openNft(n);
+    grid.append(card);
+  }
+  box.replaceChildren(grid);
+}
+function openNft(n) {
+  curNft = n;
+  const url = nftPreview(n, "1500x1500") || nftPreview(n);
+  setPic($("n-pic"), url);
+  $("n-name").textContent = n.metadata?.name || "NFT";
+  $("n-col").textContent = (n.collection?.name || "Без коллекции") + (n.trust === "whitelist" ? " ✔" : n.trust === "none" ? " · непроверенная коллекция" : "");
+  $("n-desc").textContent = n.metadata?.description || "";
+  const attrs = Array.isArray(n.metadata?.attributes) ? n.metadata.attributes : [];
+  $("n-traits").replaceChildren(...attrs.slice(0, 12).map(a => {
+    const t = el("div", "trait");
+    t.append(el("div", "k", String(a.trait_type ?? "Свойство")), el("div", "v", String(a.value ?? "—")));
+    return t;
+  }));
+  const friendlyNft = friendly(n.address);
+  $("n-gg").href = `https://getgems.io/nft/${friendlyNft}`;
+  $("n-tv").href = `https://tonviewer.com/${friendlyNft}`;
+  for (const id of ["n-gg", "n-tv"]) $(id).onclick = (ev) => { if (tg?.openLink) { ev.preventDefault(); tg.openLink($(id).href); } };
+  show("s-nft");
+}
+$("n-send").onclick = () => {
+  const n = curNft; if (!n) return;
+  setPic($("ns-pic"), nftPreview(n, "100x100") || nftPreview(n));
+  $("ns-name").textContent = n.metadata?.name || "NFT";
+  $("ns-col").textContent = n.collection?.name || "";
+  $("ns-ton").textContent = amountStr(tonBalance, 9);
+  $("ns-to").value = ""; $("ns-comment").value = ""; $("ns-pin").value = "";
+  show("s-nft-send");
+};
+function nftTransferBody(newOwner, responseTo, comment) {
+  return beginCell()
+    .storeUint(0x5fcc3d14, 32)                 // op: nft transfer
+    .storeUint(BigInt(Date.now()), 64)         // query_id
+    .storeAddress(newOwner)
+    .storeAddress(responseTo)                  // остаток TON вернётся сюда
+    .storeBit(0)                               // без custom_payload
+    .storeCoins(1n)                            // forward_amount — получатель увидит уведомление
+    .storeMaybeRef(comment ? beginCell().storeUint(0, 32).storeStringTail(comment).endCell() : null)
+    .endCell();
+}
+$("ns-go").onclick = async () => {
+  const n = curNft; if (!n) return;
+  let to;
+  try { to = Address.parseFriendly($("ns-to").value.trim()); } catch { return toast("Неверный адрес", true); }
+  if (to.address.equals(wallet.address)) return toast("Это твой собственный адрес", true);
+  if (tonBalance < NFT_GAS + toNano("0.005")) return toast("Нужно хотя бы 0.06 TON на комиссию", true);
+  try { await decryptWords(loadVault(), $("ns-pin").value); } catch { return toast("Неверный PIN-код", true); }
+  const name = n.metadata?.name || "NFT";
+  const comment = $("ns-comment").value.trim();
+  $("sending-spin").style.display = "block"; $("sending-ic").style.display = "none";
+  $("sending-title").textContent = "Отправляем подарок…";
+  $("sending-text").textContent = "Транзакция подписана и отправлена в сеть. Обычно это занимает 5–15 секунд.";
+  $("btn-sending-done").style.display = "none";
+  show("s-sending");
+  try {
+    const contract = client.open(wallet);
+    const seqno = await retry(() => contract.getSeqno());
+    await retry(() => contract.sendTransfer({
+      seqno, secretKey: keyPair.secretKey,
+      sendMode: SendMode.PAY_GAS_SEPARATELY | SendMode.IGNORE_ERRORS,
+      messages: [internal({ to: Address.parse(n.address), value: NFT_GAS, bounce: true,
+        body: nftTransferBody(to.address, wallet.address, comment) })],
+    }), 2);
+    let confirmed = false;
+    for (let i = 0; i < 20; i++) {
+      await sleep(3000);
+      try { if ((await contract.getSeqno()) > seqno) { confirmed = true; break; } } catch {}
+    }
+    $("sending-spin").style.display = "none";
+    const ic = $("sending-ic"); ic.style.display = "flex"; ic.className = "big-ic " + (confirmed ? "in" : "other"); ic.style.color = ""; ic.textContent = confirmed ? "🎁" : "⏳";
+    $("sending-title").textContent = confirmed ? "Подарок отправлен!" : "Отправлено, ждём сеть";
+    $("sending-text").textContent = confirmed ? `${name} → ${short(friendly(to.address))}` : "Сеть ещё не подтвердила транзакцию. Проверь историю через минуту.";
+    if (confirmed) toast("Готово 🎁");
+  } catch (e) {
+    console.error(e);
+    $("sending-spin").style.display = "none";
+    const ic = $("sending-ic"); ic.style.display = "flex"; ic.className = "big-ic out"; ic.style.color = "var(--bad)"; ic.textContent = "✕";
+    $("sending-title").textContent = "Ошибка";
+    $("sending-text").textContent = "Не удалось отправить NFT. Он остался у тебя — попробуй ещё раз.";
+  }
+  $("btn-sending-done").style.display = "block";
+};
 
 // ============================================================ создание / импорт
 let newWords = null, checkIdx = [];
@@ -789,8 +967,7 @@ async function wipe(title, text) {
 // ============================================================ главный
 document.querySelectorAll(".tab").forEach(t => t.onclick = () => {
   document.querySelectorAll(".tab").forEach(x => x.classList.toggle("on", x === t));
-  $("tab-assets").style.display = t.dataset.tab === "assets" ? "block" : "none";
-  $("tab-history").style.display = t.dataset.tab === "history" ? "block" : "none";
+  for (const x of document.querySelectorAll(".tab")) $("tab-" + x.dataset.tab).style.display = x === t ? "block" : "none";
   try { tg?.HapticFeedback?.selectionChanged(); } catch {}
 });
 $("btn-refresh").onclick = refresh;
@@ -897,7 +1074,7 @@ $("btn-confirm").onclick = async () => {
       try { if ((await contract.getSeqno()) > seqno) { confirmed = true; break; } } catch {}
     }
     $("sending-spin").style.display = "none";
-    const ic = $("sending-ic"); ic.style.display = "flex"; ic.className = "big-ic " + (confirmed ? "in" : "other"); ic.textContent = confirmed ? "✓" : "⏳";
+    const ic = $("sending-ic"); ic.style.display = "flex"; ic.className = "big-ic " + (confirmed ? "in" : "other"); ic.style.color = ""; ic.textContent = confirmed ? "✓" : "⏳";
     $("sending-title").textContent = confirmed ? "Отправлено!" : "Отправлено, ждём сеть";
     $("sending-text").textContent = confirmed
       ? `${amountStr(value, a.decimals)} ${a.symbol} → ${short(friendly(to.address))}`
